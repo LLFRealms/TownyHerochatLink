@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import com.llfrealms.THChatLink.THCLink;
+import com.palmergames.bukkit.towny.event.DeleteTownEvent;
 import com.palmergames.bukkit.towny.event.NewTownEvent;
 import com.palmergames.bukkit.towny.object.Town;
 
@@ -25,6 +26,7 @@ public class THCListeners implements Listener {
 	String parentGroup = "perm groups g:town setparents g:nation";
 	String createGroup = "perm group g:words create"; // command to create a group for the town/nation where words is the town/nation name
 	String addPerms = "perm group g:words set "; //command to set a permission for the town/nation group to true where words is the town/nation name
+	String deleteGroup = "perm group g:words purge";
 	
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -46,8 +48,9 @@ public class THCListeners implements Listener {
 		
 		command = format.replace("words", plugin.getConfig().getString("towns.format")); //change the command to setting the format and change "words" to the format in the config
 		command = command.replace("channel", town);
+		command = command.replaceAll("<", "{");
+		command = command.replaceAll(">", "}");
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //change the format to the one defined in the config
-		Utilities.sendMessage(plugin.consoleMessage, "&f" + command);
 		
 		command = createGroup.replace("words", town); //change the command to creating a group for the town
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
@@ -65,6 +68,20 @@ public class THCListeners implements Listener {
 			command2 = command + plugin.perms.get(i) + "." + town; //add the channel name to the end of each permission to be added
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command2); //add perms to town group
 		}
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onTownDeletion(DeleteTownEvent event) 
+	{
+		String town = event.getTownName();
+		town.replaceAll("_", "");
+		
+		String command = delete.replace("channel", town); //replace "channel" with the town name
+		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
+
+		command = deleteGroup.replace("words", town); //change the command to creating a group for the town
+		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
+		
 	}
 	
 	
