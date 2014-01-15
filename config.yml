@@ -2,7 +2,8 @@
 createFor:
     towns: true
     nations: true
-
+createIn:
+    world: casual_world
 # Settings for the channels
 # for the format section use <> instead of {} because {} is causing errors
 nations:

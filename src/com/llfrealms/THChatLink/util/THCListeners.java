@@ -2,6 +2,7 @@ package com.llfrealms.THChatLink.util;
 
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -9,6 +10,8 @@ import org.bukkit.event.Listener;
 import com.llfrealms.THChatLink.THCLink;
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
 import com.palmergames.bukkit.towny.event.NewTownEvent;
+import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
+import com.palmergames.bukkit.towny.event.TownRemoveResidentEvent;
 import com.palmergames.bukkit.towny.object.Town;
 
 public class THCListeners implements Listener {
@@ -22,11 +25,12 @@ public class THCListeners implements Listener {
 	String delete = "ch remove channel"; //string holding the command for deleting a channel
 	String color = "ch set channel color words"; //string holding the command for changing the color of the channel where "words" is the color from the config
 	String format = "ch set channel format words"; //command for changing the format of the channel
-	String addGroup = "perm player words addgroup g:town"; // command to add a group for the town/nation to the player words is the town/nation name
-	String parentGroup = "perm groups g:town setparents g:nation";
+	String addGroup = "perm group g:words1 add words2"; // command to add a group for the town/nation to the player words is the town/nation name
+	String parentGroup = "perm group g:town setparents g:nation";
 	String createGroup = "perm group g:words create"; // command to create a group for the town/nation where words is the town/nation name
 	String addPerms = "perm group g:words set "; //command to set a permission for the town/nation group to true where words is the town/nation name
 	String deleteGroup = "perm group g:words purge";
+	String world = plugin.getConfig().getString("createIn.world");
 	
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -55,18 +59,18 @@ public class THCListeners implements Listener {
 		command = createGroup.replace("words", town); //change the command to creating a group for the town
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
 		
-		String mayor = createdTown.getMayor().toString(); //string to hold the creators name
-		command = addGroup.replace("town", town); //set command to adding mayor to the towns group
-		command = command.replace("words", mayor);
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //add mayor to town group
+		Player mayor = ((Player) createdTown.getMayor()); //string to hold the creators name
+		THCLink.permset.playerAddGroup(mayor, "g:"+town);
+		
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + mayor + " ch join " + town); //add mayor to town chat
 		
-		command = addPerms.replace("words", town);
-		String command2;
+		//command = addPerms.replace("words", town);
+		String permToAdd;
 		for(int i = 0; i < plugin.perms.size(); i++)
 		{
-			command2 = command + plugin.perms.get(i) + "." + town; //add the channel name to the end of each permission to be added
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command2); //add perms to town group
+			permToAdd = plugin.perms.get(i) + "." + town; //add the channel name to the end of each permission to be added
+			//Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command2); //add perms to town group
+			THCLink.permset.groupAdd(world,"g:"+town , permToAdd);
 		}
 	}
 	
@@ -84,6 +88,25 @@ public class THCListeners implements Listener {
 		
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onTownAddResident(TownAddResidentEvent event) 
+	{
+		String town = event.getTown().toString();
+		Player addedPlayer = (Player) event.getResident();
+		String group = "g:" + town;
+		
+		THCLink.permset.playerAddGroup(addedPlayer, group);
+		
+	}
+	public void onTownRemoveResident(TownRemoveResidentEvent event) 
+	{
+		String town = event.getTown().toString();
+		Player removedPlayer = (Player) event.getResident();
+		String group = "g:" + town;
+		
+		THCLink.permset.playerRemoveGroup(removedPlayer, group);
+		
+	}
 	
 
 }
