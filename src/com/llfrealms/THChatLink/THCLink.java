@@ -10,7 +10,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.llfrealms.THChatLink.util.THCListeners;
+import com.llfrealms.THChatLink.util.THCTownListeners;
 import com.llfrealms.THChatLink.util.Utilities;
 
 
@@ -28,7 +28,7 @@ public final class THCLink extends JavaPlugin
     {
 		this.saveDefaultConfig();
     	this.getConfig();
-		new THCListeners(this);
+		new THCTownListeners(this);
 		setupPermissions();
 		THCSetup();
 		Utilities.sendMessage(consoleMessage, "&6" + pluginname + " enabled!");
