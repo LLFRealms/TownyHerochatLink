@@ -2,7 +2,7 @@ name: TownyHerochatLink
 author: L337Lobster
 website: http://llfrealms.com
 main: com.llfrealms.THChatLink.THCLink
-depend: [Towny,Herochat]
+depend: [Towny,Herochat, Vault]
 version: 1.0
 
 commands:
