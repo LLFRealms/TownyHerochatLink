@@ -13,6 +13,7 @@ import com.palmergames.bukkit.towny.event.DeleteNationEvent;
 import com.palmergames.bukkit.towny.event.NationAddTownEvent;
 import com.palmergames.bukkit.towny.event.NationRemoveTownEvent;
 import com.palmergames.bukkit.towny.event.NewNationEvent;
+import com.palmergames.bukkit.towny.event.RenameNationEvent;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
@@ -112,4 +113,15 @@ public class THCNationListeners  implements Listener {
 			THCLink.permset.playerRemoveGroup((Player) s, "n:" + nation);
 		}
 	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onNationRename(RenameNationEvent event) 
+	{
+		Nation newName = event.getNation();
+		String oldName = event.getOldName();
+		
+		String command = "perm group n:" + oldName + " rename n:" + newName; 
+		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //rename a group for the new town name
+	}
+	
 }

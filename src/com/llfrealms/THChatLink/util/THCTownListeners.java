@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import com.llfrealms.THChatLink.THCLink;
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
 import com.palmergames.bukkit.towny.event.NewTownEvent;
+import com.palmergames.bukkit.towny.event.RenameTownEvent;
 import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownRemoveResidentEvent;
 import com.palmergames.bukkit.towny.object.Town;
@@ -107,6 +108,16 @@ public class THCTownListeners implements Listener {
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + removedPlayer + " ch join " + town); //add mayor to town chat
 		THCLink.permset.playerRemoveGroup(removedPlayer, group); //remove removed resident from town group
 		
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onTownRename(RenameTownEvent event) 
+	{
+		Town newName = event.getTown();
+		String oldName = event.getOldName();
+		
+		String command = "perm group t:" + oldName + " rename t:" + newName; 
+		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //rename a group for the new town name
 	}
 	
 
