@@ -1,0 +1,36 @@
+name: TownyHerochatLink
+author: L337Lobster
+website: http://llfrealms.com
+main: com.llfrealms.THChatLink.THCLink
+depend: [Towny,Herochat]
+version: 1.0
+
+commands:
+    thcsave:
+       description: save config.
+       aliases: thcs
+       permission: thcl.save
+       permission-message: You do not have permission for this command
+       usage: /<command>
+    thcload:
+       description: reload config.
+       aliases: thcl
+       permission: thcl.save
+       permission-message: You do not have permission for this command
+       usage: /<command>
+    thcrefresh:
+        description: Refresh town and nation channels (i.e. create any that aren't made yet)
+        aliases: thcr
+        permission: thcl.refresh
+        permission-message: You do not have permission for this command
+        usage: /<command>
+permissions:
+    thcl.load:
+        description: Allows the user to reload the config file
+        default: OP
+    thcl.save:
+        description: Allows the user to save the config file
+        default: OP
+    thcl.refresh:
+        description: Allows the user to refresh the channels
+        default: OP

@@ -1,0 +1,23 @@
+# set the selection to true to enable creation of a new channel for towns/nations 
+createFor:
+    towns: true
+    nations: true
+
+# Settings for the channels
+nations:
+    color: GOLD
+    format: {default}
+towns:
+    color: AQUA
+    format: {default}
+    
+# permissions to give to players when they join a town or their town joins a nation
+# all permissions will have the appropriate channel name appended on the end
+# for example if you put herochat.join in the list the player will recieve herochat.join.<channel>
+# where <channel> is the nation or town channel (depending on the situation)
+permissions:
+    - herochat.autojoin
+    - herochat.join
+    - herochat.leave
+    - herochat.speak
+    - herochat.focus
