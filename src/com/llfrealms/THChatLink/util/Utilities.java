@@ -2,11 +2,18 @@ package com.llfrealms.THChatLink.util;
 
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+
+import com.llfrealms.THChatLink.THCLink;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
 
 
 public class Utilities {
+
+	public static ConsoleCommandSender consoleMessage = Bukkit.getConsoleSender();
 	
     public static String colorChat(String msg) 
     {
@@ -48,6 +55,25 @@ public class Utilities {
     		}
     	}
     	return true;
+    }
+    public static void checkChannels()
+    {
+    	String[] towns = (String[]) TownyUniverse.getDataSource().getTowns().toArray();
+		String[] nations = (String[]) TownyUniverse.getDataSource().getNations().toArray();
+		String[] groups = THCLink.permset.getGroups();
+		for(int i = 0; i < groups.length; i++)
+		{
+			sendMessage(consoleMessage, groups[i]);
+			if(i < nations.length)
+			{
+				sendMessage(consoleMessage, nations[i]);
+			}
+			if(i < towns.length)
+			{
+				sendMessage(consoleMessage, towns[i]);
+			}
+			
+		}
     }
     public static boolean sendMultilineMessage(CommandSender p, String message)
     {
