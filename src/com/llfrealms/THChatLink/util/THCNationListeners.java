@@ -31,7 +31,6 @@ public class THCNationListeners  implements Listener {
 	private String format = "ch set town format words"; //command for changing the format of the channel
 	private String createGroup = "perm group n:town create"; // command to create a group for the town/nation where words is the town/nation name
 	private String deleteGroup = "perm group n:town purge";
-	private String world = plugin.getConfig().getString("createIn.world");
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onNationCreation(NewNationEvent event)
@@ -70,7 +69,7 @@ public class THCNationListeners  implements Listener {
 		for(int i = 0; i < plugin.perms.size(); i++)
 		{
 			permToAdd = plugin.perms.get(i) + "." + nation; //add the channel name to the end of each permission to be added
-			THCLink.permset.groupAdd(world,"n:"+nation , permToAdd);
+			THCLink.permset.groupAdd("world","n:"+nation , permToAdd);
 		}
 	}
 	

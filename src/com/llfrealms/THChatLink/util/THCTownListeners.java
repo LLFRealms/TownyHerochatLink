@@ -29,7 +29,6 @@ public class THCTownListeners implements Listener {
 	private String format = "ch set town format words"; //command for changing the format of the channel
 	private String createGroup = "perm group t:town create"; // command to create a group for the town/nation where words is the town/nation name
 	private String deleteGroup = "perm group t:town purge";
-	private String world = plugin.getConfig().getString("createIn.world");
 	
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -69,7 +68,7 @@ public class THCTownListeners implements Listener {
 		{
 			permToAdd = plugin.perms.get(i) + "." + town; //add the channel name to the end of each permission to be added
 			//Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command2); //add perms to town group
-			THCLink.permset.groupAdd(world,"t:"+town , permToAdd);//Vault add perm to group
+			THCLink.permset.groupAdd("world","t:"+town , permToAdd);//Vault add perm to group
 		}
 	}
 	

@@ -27,7 +27,7 @@ public class THCCommands  implements CommandExecutor
 			Utilities.sendMessage(sender, "Config reloaded");
         	return true;
 	    }
-		if(cmd.getName().equalsIgnoreCase("THCRefresh") && sender.hasPermission("thcl.refresh"))
+		if(cmd.getName().equalsIgnoreCase("thcrefresh") && sender.hasPermission("thcl.refresh"))
 		{
 			Utilities.checkChannels();
 			return true;
