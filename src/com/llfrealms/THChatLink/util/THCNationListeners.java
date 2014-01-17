@@ -62,8 +62,9 @@ public class THCNationListeners  implements Listener {
 		
 		for(Resident s: creatingTown)
 		{
-			THCLink.permset.playerAddGroup((Player) s, "n:" + nation);
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + (Player) s + " ch join " + nation); //add residents to nation chat
+			Player player = plugin.getServer().getPlayer(s.toString());
+			THCLink.permset.playerAddGroup(player, "n:" + nation);
+			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch join " + nation); //add residents to nation chat
 		}
 		String permToAdd;
 		for(int i = 0; i < plugin.perms.size(); i++)
@@ -95,8 +96,9 @@ public class THCNationListeners  implements Listener {
 		
 		for(Resident s: addedTownRes)
 		{
-			THCLink.permset.playerAddGroup((Player) s, "n:" + nation);
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + (Player) s + " ch join " + nation); //add residents to nation chat
+			Player player = plugin.getServer().getPlayer(s.toString());
+			THCLink.permset.playerAddGroup(player, "n:" + nation);
+			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch join " + nation); //add residents to nation chat
 		}
 	}
 	
@@ -109,8 +111,9 @@ public class THCNationListeners  implements Listener {
 		
 		for(Resident s: removedTownRes)
 		{
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + (Player) s + " ch leave " + nation); //remove residents from the nation chat
-			THCLink.permset.playerRemoveGroup((Player) s, "n:" + nation);
+			Player player = plugin.getServer().getPlayer(s.toString());
+			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch leave " + nation); //remove residents from the nation chat
+			THCLink.permset.playerRemoveGroup(player, "n:" + nation);
 		}
 	}
 	

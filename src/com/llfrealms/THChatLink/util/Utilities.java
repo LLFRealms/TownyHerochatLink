@@ -144,8 +144,9 @@ public class Utilities {
 		
 		for(Resident s: addedTownRes)
 		{
-			THCLink.permset.playerAddGroup((Player) s, "t:" + channel);
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + (Player) s + " ch join " + channel); //add residents to nation chat
+			Player player = plugin.getServer().getPlayer(s.toString());
+			THCLink.permset.playerAddGroup(player, "t:" + channel);
+			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch join " + channel); //add residents to nation chat
 		}
 		
 		String permToAdd;
