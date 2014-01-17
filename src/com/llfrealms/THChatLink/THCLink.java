@@ -11,9 +11,9 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.tyrannyofheaven.bukkit.zPermissions.ZPermissionsService;
 
+import com.llfrealms.THChatLink.Listeners.THCNationListeners;
+import com.llfrealms.THChatLink.Listeners.THCTownListeners;
 import com.llfrealms.THChatLink.util.THCCommands;
-import com.llfrealms.THChatLink.util.THCNationListeners;
-import com.llfrealms.THChatLink.util.THCTownListeners;
 import com.llfrealms.THChatLink.util.Utilities;
 
 
