@@ -32,7 +32,7 @@ public final class THCLink extends JavaPlugin
 	public ArrayList<String> perms = new ArrayList<String>(); //list of permissions from the config
 	public boolean createN; //boolean for whether or not to create new channels for nations
 	public boolean createT; //boolean for whether or not to create new channels for towns
-	public static Permission permset = null;
+	public Permission permission = null;
 	public static ZPermissionsService service = null;
 	public String logPrefix = "&f[&5"+pluginname+"&f]&e";
 	public Statement stmt = null;
@@ -58,6 +58,7 @@ public final class THCLink extends JavaPlugin
     	getCommand("thcload").setExecutor(new THCCommands(this));
     	getCommand("thcsave").setExecutor(new THCCommands(this));
     	getCommand("thcrefresh").setExecutor(new THCCommands(this));
+    	getCommand("thcgroups").setExecutor(new THCCommands(this));
 
 		
         host = getConfig().getString("MySQL.host");
@@ -81,11 +82,13 @@ public final class THCLink extends JavaPlugin
         Utilities.sendMessage(consoleMessage, logPrefix + "Closing");
     }
     
-    private boolean setupPermissions() {
-    	Utilities.sendMessage(consoleMessage, logPrefix + "Setting up the config the permissions hook");
-        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        permset = rsp.getProvider();
-        return perms != null;
+    private boolean setupPermissions()
+    {
+        RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+        if (permissionProvider != null) {
+            permission = permissionProvider.getProvider();
+        }
+        return (permission != null);
     }
     public void tableCheck()
     {

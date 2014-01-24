@@ -3,7 +3,7 @@ author: L337Lobster
 website: http://llfrealms.com
 main: com.llfrealms.THChatLink.THCLink
 depend: [Towny,Herochat,Vault,zPermissions]
-version: 1.0
+version: 1.2
 
 commands:
     thcsave:
@@ -23,6 +23,10 @@ commands:
         aliases: thcr
         permission: thcl.refresh
         permission-message: You do not have permission for this command
+        usage: /<command>
+    thcgroups:
+        description: no description
+        aliases: thcg
         usage: /<command>
 permissions:
     thcl.load:

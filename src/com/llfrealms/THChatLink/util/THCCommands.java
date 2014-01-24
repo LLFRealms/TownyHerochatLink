@@ -48,9 +48,30 @@ public class THCCommands  implements CommandExecutor
 			checkChannels();
 			return true;
 		}
+		if(cmd.getName().equalsIgnoreCase("thcgroups"))
+		{
+			checkGroups(sender);
+			return true;
+		}
 		return false;
 	}
-	
+	public void checkGroups(CommandSender sender)
+	{
+		String[] groups = plugin.permission.getGroups();
+		ArrayList<String> entityGroups = new ArrayList<>();
+		for(String s: groups)
+		{
+			if(s.contains("n:") || s.contains("t:"))
+			{
+				entityGroups.add(s);
+			}
+		}
+		Utilities.sendMessage(sender, "&aGroups List:");
+		for(int i = 0; i < entityGroups.size(); i++)
+		{
+			Utilities.sendMessage(sender, "&e" + entityGroups.get(i));
+		}
+	}
 	public void checkChannels()
     {
     	List<Town> towns =  TownyUniverse.getDataSource().getTowns();
@@ -60,6 +81,7 @@ public class THCCommands  implements CommandExecutor
 		Set<String> groups = THCLink.service.getAllGroups();
 		ArrayList<String> groupsList = new ArrayList<>();
 		String tempGroup, tempTown, tempNation;
+		ArrayList<Boolean> entityCheck = new ArrayList<>();
 		for(String s: groups)
 		{
 			if(s.contains("n:") || s.contains("t:"))
@@ -84,46 +106,62 @@ public class THCCommands  implements CommandExecutor
 		}
 		if(!groupsList.isEmpty())
 		{
-			for(int i = 0; i < groupsList.size(); i++)
+			if(plugin.createT)
 			{
-				Utilities.sendMessage(plugin.consoleMessage, "I derp: " + i);
-				tempGroup = groupsList.get(i);
-				for(int j = 0; j < towns.size(); j++)
+				for(int i = 0; i < towns.size(); i++)
 				{
-					Utilities.sendMessage(plugin.consoleMessage, "J derp: " + j);
-					tempTown = townsList.get(j);
-					if(tempGroup.substring(2).equalsIgnoreCase(tempTown))
+					Utilities.sendMessage(plugin.consoleMessage, "I derp: " + i);
+					tempTown = townsList.get(i);
+					for(int j = 0; j < groupsList.size(); j++)
 					{
-						Utilities.sendMessage(plugin.consoleMessage, "&aGroup "+ tempGroup + " aka '"+tempGroup.substring(2) + "' does not equal " + tempTown);
+						Utilities.sendMessage(plugin.consoleMessage, "J derp: " + j);
+						tempGroup = groupsList.get(j);
+						if(tempGroup.substring(2).equalsIgnoreCase(tempTown))
+						{
+							entityCheck.add(true);
+						}
+						else
+						{
+							entityCheck.add(false);
+						}
 					}
-					else
+					if(Utilities.allTheSame(entityCheck))
 					{
-						townCreation(towns.get(j), towns.get(j).getMayor().toString());
+						townCreation(towns.get(i), towns.get(i).getMayor().toString());
 						Utilities.sendMessage(plugin.consoleMessage, "&7It should have just created a channel for: " + tempTown);
 					}
 				}
-				
+				entityCheck.clear();
 			}
-			for(int i = 0; i < groupsList.size(); i++)
+			if(plugin.createN)
 			{
-				Utilities.sendMessage(plugin.consoleMessage, "I derp: " + i);
-				tempGroup = groupsList.get(i);
-				for(int j = 0; j < nations.size(); j++)
+				for(int i = 0; i < nations.size(); i++)
 				{
-					Utilities.sendMessage(plugin.consoleMessage, "J derp: " + j);
-					tempNation = nationsList.get(j);
-					if(tempGroup.substring(2).equalsIgnoreCase(tempNation))
+					Utilities.sendMessage(plugin.consoleMessage, "I derp: " + i);
+					tempNation = nationsList.get(i);
+					for(int j = 0; j < groupsList.size(); j++)
 					{
-						Utilities.sendMessage(plugin.consoleMessage, "&aGroup "+ tempGroup + " aka '"+tempGroup.substring(2) + "' does not equal " + tempNation);
+						Utilities.sendMessage(plugin.consoleMessage, "J derp: " + j);
+						tempGroup = groupsList.get(j);
+						if(tempGroup.substring(2).equalsIgnoreCase(tempNation))
+						{
+							entityCheck.add(true);
+						}
+						else
+						{
+							entityCheck.add(false);
+						}
 					}
-					else
+					if(Utilities.allTheSame(entityCheck))
 					{
-						nationCreation(nations.get(j), nations.get(j).getCapital());
+						nationCreation(nations.get(i), nations.get(i).getCapital());
 						Utilities.sendMessage(plugin.consoleMessage, "&7It should have just created a channel for: " + tempNation);
 					}
+					
 				}
-				
+				entityCheck.clear();
 			}
+			
 		}
 		else if(groupsList.isEmpty())
 		{

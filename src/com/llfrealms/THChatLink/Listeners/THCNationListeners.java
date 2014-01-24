@@ -141,7 +141,7 @@ public class THCNationListeners  implements Listener {
 			addPerm = addGroupPerm.replace("nation", nation);
 			addPerm = addPerm.replace("words", permToAdd);
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), addPerm); //add the channel name to the end of each permission to be added
-			THCLink.permset.groupAdd("world","n:"+nation , permToAdd);
+			plugin.permission.groupAdd("world","n:"+nation , permToAdd);
 		}
 	}
 	
