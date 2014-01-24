@@ -1,9 +1,12 @@
 package com.llfrealms.THChatLink.Listeners;
 
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,7 +14,6 @@ import org.bukkit.event.Listener;
 import com.llfrealms.THChatLink.THCLink;
 import com.llfrealms.THChatLink.util.Utilities;
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
-import com.palmergames.bukkit.towny.event.NewTownEvent;
 import com.palmergames.bukkit.towny.event.RenameTownEvent;
 import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
 import com.palmergames.bukkit.towny.event.TownRemoveResidentEvent;
@@ -36,15 +38,21 @@ public class THCTownListeners implements Listener {
 	private String addGroupPerm = "perm group t:town set words";
 	
 	
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onTownCreation(NewTownEvent event) 
+	public void townCreation(Town event, String mayor) 
 	{
-		Town createdTown = event.getTown();
+		Town createdTown = event;
 		String town = createdTown.toString();
 		town.replaceAll("_", "");
 		
 		String nick = town.substring(0, 4).toUpperCase();
-		
+		int nickSuffix = 0;
+		String nick2 = nick;
+		while(plugin.isNickTaken(nick))
+		{
+			nickSuffix++;
+			nick = nick2 + nickSuffix;
+		}
+		plugin.addRecord("INSERT INTO " + plugin.pluginname + " VALUES(\'"+nick+"\', \'"+town+"\');");
 		String command = create.replace("town", town); //replace "channel" with the town name
 		command = command.replace("nick", nick); //replace "nick" with the first four letters of the town name
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
@@ -62,7 +70,6 @@ public class THCTownListeners implements Listener {
 		command = createGroup.replace("town", town); //change the command to creating a group for the town
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
 		
-		String mayor = createdTown.getMayor().toString(); //string to hold the creators name
 		command = addPlayer.replace("town", town);
 		command = command.replace("player", mayor);
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
@@ -76,7 +83,8 @@ public class THCTownListeners implements Listener {
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), addPerm); //add perms to town group
 			//THCLink.permset.groupAdd("world","t:"+town , permToAdd);//Vault add perm to group
 		}
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + mayor + " ch join " + town); //add mayor to town chat
+		Player commandPlayer = plugin.getServer().getPlayer(mayor);
+		commandPlayer.performCommand("ch join " + town); //add mayor to town chat
 		
 		
 	}
@@ -89,24 +97,64 @@ public class THCTownListeners implements Listener {
 		
 		String command = delete.replace("town", town); //replace "channel" with the town name
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
-
+		
+		plugin.deleteRecord("DELETE FROM " + plugin.pluginname + " WHERE entity = \'"+town+"\';");
+		
 		command = deleteGroup.replace("town", town); //change the command to creating a group for the town
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
 		
 	}
-	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onTownAddResident(TownAddResidentEvent event) 
+	public void onTownAddResident(TownAddResidentEvent event)
 	{
-		String town = event.getTown().toString();
-
-		String addedPlayer = event.getResident().toString(); //string to hold the creators name
-		Utilities.sendMessage(plugin.consoleMessage, "&5Adding " + addedPlayer + " to the town group and channel of " + town);
-		String command = addPlayer.replace("town", town);
-		command = command.replace("player", addedPlayer);
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + addedPlayer + " ch join " + town); //add mayor to town chat
-		
+		ArrayList<Boolean> isNewTown = new ArrayList<>();
+		Resident resident = event.getResident();
+		Town newTown = event.getTown();
+		String town = newTown.toString();
+		Set<String> groups = THCLink.service.getAllGroups();
+		ArrayList<String> groupsList = new ArrayList<>();
+		ArrayList<String> townList = new ArrayList<>();
+		for(String s: groups)
+		{
+			groupsList.add(s);
+		}
+		for(String s: groupsList)
+		{
+			if(s.contains("t:"))
+			{
+				townList.add(s);
+			}
+		}
+		if(!townList.isEmpty())
+		{
+			for(int i = 0; i<townList.size(); i++)
+			{
+				if(townList.get(i).equals("t:"+town))
+				{
+					isNewTown.add(false);
+					String command;
+					
+					String player = resident.toString();
+					command = addPlayer.replace("town", town);
+					command = command.replace("player", player);
+					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+					Player commandPlayer = plugin.getServer().getPlayer(player);
+					commandPlayer.performCommand("ch join " + town); //add residents to town chat
+				}
+				else
+				{
+					isNewTown.add(true);
+				}
+			}
+			if(Utilities.allTheSame(isNewTown) && isNewTown.size() > 1)
+			{
+				townCreation(newTown, resident.toString());
+			}
+		}
+		else
+		{
+			townCreation(newTown, resident.toString());
+		}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -115,10 +163,10 @@ public class THCTownListeners implements Listener {
 		String town = event.getTown().toString();
 
 		String removedPlayer = event.getResident().toString(); //string to hold the creators name
-		Utilities.sendMessage(plugin.consoleMessage, "&5Removing " + removedPlayer + " to the town group and channel of " + town);
 		String command = removePlayer.replace("town", town);
 		command = command.replace("player", removedPlayer);
-		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + removedPlayer + " ch leave " + town); //remove player from town chat
+		Player commandPlayer = plugin.getServer().getPlayer(removedPlayer);
+		commandPlayer.performCommand("ch leave " + town); //remove player from town chat
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //remove player from group
 		
 	}
@@ -160,7 +208,8 @@ public class THCTownListeners implements Listener {
 			command = addPlayer.replace("town", town);
 			command = command.replace("player", player);
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch join " + town); //add residents to nation chat
+			Player commandPlayer = plugin.getServer().getPlayer(s.toString());
+			commandPlayer.performCommand("ch join " + town); //add residents to nation chat
 		}
 		
 	}

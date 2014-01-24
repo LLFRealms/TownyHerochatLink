@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import com.llfrealms.THChatLink.THCLink;
 import com.llfrealms.THChatLink.util.Utilities;
-import com.palmergames.bukkit.towny.event.DeleteNationEvent;
 import com.palmergames.bukkit.towny.event.NationAddTownEvent;
 import com.palmergames.bukkit.towny.event.NationRemoveTownEvent;
-import com.palmergames.bukkit.towny.event.NewNationEvent;
 import com.palmergames.bukkit.towny.event.RenameNationEvent;
 import com.palmergames.bukkit.towny.object.Nation;
 import com.palmergames.bukkit.towny.object.Resident;
@@ -40,44 +39,73 @@ public class THCNationListeners  implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onNationAddTown(NationAddTownEvent event)
 	{
+		ArrayList<Boolean> newNation = new ArrayList<>();
 		Town addedTown = event.getTown();
 		String nation = event.getNation().toString();
 		Set<String> groups = THCLink.service.getAllGroups();
 		ArrayList<String> groupsList = new ArrayList<>();
-		Utilities.sendMessage(plugin.consoleMessage, "&aTown of "+addedTown.toString()+" added to the Nation of " + nation);
+		ArrayList<String> nationList = new ArrayList<>();
 		for(String s: groups)
 		{
 			groupsList.add(s);
 		}
-		for(int i = 0; i<groupsList.size(); i++)
+		for(String s: groupsList)
 		{
-			if(groupsList.get(i).equals("n:"+nation))
+			if(s.contains("n:"))
 			{
-				List<Resident> addedTownRes = addedTown.getResidents();
-				String command;
-				
-				for(Resident s: addedTownRes)
-				{
-					String player = s.toString();
-					command = addPlayer.replace("nation", nation);
-					command = command.replace("player", player);
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch join " + nation); //add residents to nation chat
-				}
+				nationList.add(s);
 			}
 		}
+		if(!nationList.isEmpty())
+		{
+			for(int i = 0; i<nationList.size(); i++)
+			{
+				if(nationList.get(i).equals("n:"+nation))
+				{
+					newNation.add(false);
+					List<Resident> addedTownRes = addedTown.getResidents();
+					String command;
+					
+					for(Resident s: addedTownRes)
+					{
+						String player = s.toString();
+						command = addPlayer.replace("nation", nation);
+						command = command.replace("player", player);
+						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+						Player commandPlayer = plugin.getServer().getPlayer(s.toString());
+						commandPlayer.performCommand("ch join " + nation); //add residents to nation chat
+					}
+				}
+				else
+				{
+					newNation.add(true);
+				}
+			}
+			if(Utilities.allTheSame(newNation) && newNation.size() > 1)
+			{
+				nationCreation(event.getNation(), addedTown);
+			}
+		}
+		else
+		{
+			nationCreation(event.getNation(), addedTown);
+		}
 	}
-	
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onNationCreation(NewNationEvent event)
+
+	public void nationCreation(Nation createdNation, Town creatingTown)
 	{
-		Nation createdNation = event.getNation();
 		String nation = createdNation.toString();
-		Utilities.sendMessage(plugin.consoleMessage, "&aNew Nation of "+nation+"created");
 		nation.replaceAll("_", "");
 		
 		String nick = nation.substring(0, 4).toUpperCase();
-		
+		int nickSuffix = 0;
+		String nick2 = nick;
+		while(plugin.isNickTaken(nick))
+		{
+			nickSuffix++;
+			nick = nick2 + nickSuffix;
+		}
+		plugin.addRecord("INSERT INTO " + plugin.pluginname + " VALUES(\'"+nick+"\', \'"+nation+"\');");
 		String command = create.replace("nation", nation); //replace "channel" with the nation name
 		command = command.replace("nick", nick); //replace "nick" with the first four letters of the nation name
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
@@ -95,38 +123,38 @@ public class THCNationListeners  implements Listener {
 		command = createGroup.replace("nation", nation); //change the command to creating a group for the nation
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the n
 		
-		List<Resident> creatingTown = createdNation.getCapital().getResidents();
+		List<Resident> capital = creatingTown.getResidents();
 		
-		for(Resident s: creatingTown)
+		for(Resident s: capital)
 		{
 			String player = s.toString();
 			command = addPlayer.replace("nation", nation);
 			command = command.replace("player", player);
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch join " + nation); //add residents to nation chat
+			Player commandPlayer = plugin.getServer().getPlayer(s.toString());
+			commandPlayer.performCommand("ch join " + nation); //add residents to nation chat
 		}
 		String permToAdd, addPerm;
 		for(int i = 0; i < plugin.perms.size(); i++)
 		{
 			permToAdd = plugin.perms.get(i) + "." + nation; //add the channel name to the end of each permission to be added
-			addPerm = addGroupPerm.replace("town", nation);
+			addPerm = addGroupPerm.replace("nation", nation);
 			addPerm = addPerm.replace("words", permToAdd);
 			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), addPerm); //add the channel name to the end of each permission to be added
 			THCLink.permset.groupAdd("world","n:"+nation , permToAdd);
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.MONITOR)
-	public void onNationDeletion(DeleteNationEvent event)
+	
+	public void nationDelete(String nation)
 	{
-		String nation = event.getNationName();
-		Utilities.sendMessage(plugin.consoleMessage, "&aNation of "+nation+"deleted");
 		nation.replaceAll("_", "");
 		
-		String command = delete.replace("channel", nation); //replace "channel" with the nation name
+		String command = delete.replace("nation", nation); //replace "channel" with the nation name
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //delete the channel
-
-		command = deleteGroup.replace("words", nation); //change the command to deleting a group for the nation
+		plugin.deleteRecord("DELETE FROM " + plugin.pluginname + " WHERE entity = \'"+nation+"\';");
+		
+		command = deleteGroup.replace("nation", nation); //change the command to deleting a group for the nation
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the nation
 	}
 	
@@ -135,18 +163,27 @@ public class THCNationListeners  implements Listener {
 	{
 		Town removedTown = event.getTown();
 		String nation = event.getNation().toString();
-		Utilities.sendMessage(plugin.consoleMessage, "&aTown of "+removedTown.toString()+" removed from the Nation of " + nation);
-		List<Resident> removedTownRes = removedTown.getResidents();
-		
-		String command;
-		
-		for(Resident s: removedTownRes)
+		String capital = event.getNation().getCapital().toString();
+		String town = removedTown.toString();
+		if(town.equalsIgnoreCase(capital))
 		{
-			String player = s.toString();
-			command = removePlayer.replace("nation", nation);
-			command = command.replace("player", player);
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-			Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "sudo " + player + " ch leave " + nation); //add residents to nation chat
+			nationDelete(nation);
+		}
+		else
+		{
+			List<Resident> removedTownRes = removedTown.getResidents();
+			
+			String command;
+			
+			for(Resident s: removedTownRes)
+			{
+				String player = s.toString();
+				command = removePlayer.replace("nation", nation);
+				command = command.replace("player", player);
+				Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+				Player commandPlayer = plugin.getServer().getPlayer(s.toString());
+				commandPlayer.performCommand("ch leave " + nation); //add residents to nation chat
+			}
 		}
 	}
 	
