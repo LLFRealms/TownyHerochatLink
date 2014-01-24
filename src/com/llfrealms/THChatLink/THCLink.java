@@ -15,7 +15,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.tyrannyofheaven.bukkit.zPermissions.ZPermissionsService;
 
 import com.llfrealms.THChatLink.Listeners.THCNationListeners;
 import com.llfrealms.THChatLink.Listeners.THCTownListeners;
@@ -33,7 +32,6 @@ public final class THCLink extends JavaPlugin
 	public boolean createN; //boolean for whether or not to create new channels for nations
 	public boolean createT; //boolean for whether or not to create new channels for towns
 	public Permission permission = null;
-	public static ZPermissionsService service = null;
 	public String logPrefix = "&f[&5"+pluginname+"&f]&e";
 	public Statement stmt = null;
 	public Connection connection = null;
@@ -42,15 +40,6 @@ public final class THCLink extends JavaPlugin
 	@Override
 	public void onEnable()
     {
-		try {
-		    service = Bukkit.getServicesManager().load(ZPermissionsService.class);
-		}
-		catch (NoClassDefFoundError e) {
-		    // Eh...
-		}
-		if (service == null) {
-		    // zPermissions not found, do something else
-		}
 		this.saveDefaultConfig();
     	this.getConfig();
 		townsColor = getConfig().getString("towns.color");
@@ -74,7 +63,7 @@ public final class THCLink extends JavaPlugin
 		THCSetup();	
 		if(createT){new THCTownListeners(this);}
 		if(createN){new THCNationListeners(this);}
-		Utilities.sendMessage(consoleMessage, logPrefix + " enabled!");
+		Utilities.sendMessage(consoleMessage, logPrefix + "Enabled!");
     }
     @Override
     public void onDisable() 

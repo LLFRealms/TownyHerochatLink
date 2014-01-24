@@ -3,7 +3,6 @@ package com.llfrealms.THChatLink.Listeners;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -99,7 +98,6 @@ public class THCTownListeners implements Listener {
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
 		
 		plugin.deleteRecord("DELETE FROM " + plugin.pluginname + " WHERE entity = \'"+town+"\';");
-		
 		command = deleteGroup.replace("town", town); //change the command to creating a group for the town
 		Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
 		
@@ -111,7 +109,7 @@ public class THCTownListeners implements Listener {
 		Resident resident = event.getResident();
 		Town newTown = event.getTown();
 		String town = newTown.toString();
-		Set<String> groups = THCLink.service.getAllGroups();
+		String[] groups = plugin.permission.getGroups();
 		ArrayList<String> groupsList = new ArrayList<>();
 		ArrayList<String> townList = new ArrayList<>();
 		for(String s: groups)
@@ -132,13 +130,14 @@ public class THCTownListeners implements Listener {
 				if(townList.get(i).equals("t:"+town))
 				{
 					isNewTown.add(false);
-					String command;
-					
+//					String command;
+//					
 					String player = resident.toString();
-					command = addPlayer.replace("town", town);
-					command = command.replace("player", player);
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+//					command = addPlayer.replace("town", town);
+//					command = command.replace("player", player);
+//					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
 					Player commandPlayer = plugin.getServer().getPlayer(player);
+					plugin.permission.playerAddGroup(commandPlayer, "t:"+town);
 					commandPlayer.performCommand("ch join " + town); //add residents to town chat
 				}
 				else

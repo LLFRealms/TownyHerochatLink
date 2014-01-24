@@ -1,9 +1,9 @@
 name: TownyHerochatLink
 author: L337Lobster
-website: http://llfrealms.com
+website: http://dev.bukkit.org/bukkit-plugins/townyherochatlink
 main: com.llfrealms.THChatLink.THCLink
-depend: [Towny,Herochat,Vault,zPermissions]
-version: 1.2
+depend: [Towny,Herochat,Vault]
+version: 1.5
 
 commands:
     thcsave:
@@ -29,12 +29,19 @@ commands:
         aliases: thcg
         usage: /<command>
 permissions:
+    thcl.*:
+        description: Gives access to all permissions.
+        default: op
+        children:
+            thcl.save: true
+            thcl.load: true
+            thcl.refresh: true
     thcl.load:
         description: Allows the user to reload the config file
-        default: OP
+        default: false
     thcl.save:
         description: Allows the user to save the config file
-        default: OP
+        default: false
     thcl.refresh:
         description: Allows the user to refresh the channels
-        default: OP
+        default: false

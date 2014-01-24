@@ -2,7 +2,6 @@ package com.llfrealms.THChatLink.Listeners;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -42,7 +41,7 @@ public class THCNationListeners  implements Listener {
 		ArrayList<Boolean> newNation = new ArrayList<>();
 		Town addedTown = event.getTown();
 		String nation = event.getNation().toString();
-		Set<String> groups = THCLink.service.getAllGroups();
+		String[] groups = plugin.permission.getGroups();
 		ArrayList<String> groupsList = new ArrayList<>();
 		ArrayList<String> nationList = new ArrayList<>();
 		for(String s: groups)
@@ -64,15 +63,16 @@ public class THCNationListeners  implements Listener {
 				{
 					newNation.add(false);
 					List<Resident> addedTownRes = addedTown.getResidents();
-					String command;
+					//String command;
 					
 					for(Resident s: addedTownRes)
 					{
-						String player = s.toString();
-						command = addPlayer.replace("nation", nation);
-						command = command.replace("player", player);
-						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
+//						String player = s.toString();
+//						command = addPlayer.replace("nation", nation);
+//						command = command.replace("player", player);
+//						Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
 						Player commandPlayer = plugin.getServer().getPlayer(s.toString());
+						plugin.permission.playerAddGroup(commandPlayer, "n:" + nation);
 						commandPlayer.performCommand("ch join " + nation); //add residents to nation chat
 					}
 				}

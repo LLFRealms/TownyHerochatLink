@@ -2,7 +2,6 @@ package com.llfrealms.THChatLink.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
@@ -71,6 +70,7 @@ public class THCCommands  implements CommandExecutor
 		{
 			Utilities.sendMessage(sender, "&e" + entityGroups.get(i));
 		}
+		Utilities.sendMessage(sender, "Plugin in use: " + plugin.permission.getName());
 	}
 	public void checkChannels()
     {
@@ -78,7 +78,7 @@ public class THCCommands  implements CommandExecutor
     	ArrayList<String> townsList = new ArrayList<>();
 		List<Nation> nations = TownyUniverse.getDataSource().getNations();
 		ArrayList<String> nationsList = new ArrayList<>();
-		Set<String> groups = THCLink.service.getAllGroups();
+		String[] groups = plugin.permission.getGroups();
 		ArrayList<String> groupsList = new ArrayList<>();
 		String tempGroup, tempTown, tempNation;
 		ArrayList<Boolean> entityCheck = new ArrayList<>();
