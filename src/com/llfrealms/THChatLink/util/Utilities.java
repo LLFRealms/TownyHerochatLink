@@ -8,9 +8,10 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 
+
 public class Utilities {
 
-
+	
 	public static ConsoleCommandSender consoleMessage = Bukkit.getConsoleSender();
 	
     public static String colorChat(String msg) 
@@ -41,6 +42,24 @@ public class Utilities {
         } else {
                 p.sendMessage(colorChat(message));
         }
+        return true;
+    }
+    public static boolean sendLog(String message)
+    {
+    	ConsoleCommandSender p = Bukkit.getConsoleSender();
+        if (message ==null || message.isEmpty()) return true;
+        if (message.contains("\n"))
+        return sendMultilineMessage(p,message);
+        p.sendMessage(colorChat(message));
+        return true;
+    }
+    public static boolean sendError(String message)
+    {
+    	ConsoleCommandSender p = Bukkit.getConsoleSender();
+        if (message ==null || message.isEmpty()) return true;
+        if (message.contains("\n"))
+        return sendMultilineMessage(p,message);
+        p.sendMessage(colorChat("&c" + message));
         return true;
     }
     public static boolean allTheSame(ArrayList<Boolean> l)

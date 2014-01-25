@@ -16,8 +16,20 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+
+
 import com.llfrealms.THChatLink.Listeners.THCNationListeners;
 import com.llfrealms.THChatLink.Listeners.THCTownListeners;
+import com.llfrealms.THChatLink.util.PermissionsPlugin;
 import com.llfrealms.THChatLink.util.THCCommands;
 import com.llfrealms.THChatLink.util.Utilities;
 
@@ -25,7 +37,7 @@ import com.llfrealms.THChatLink.util.Utilities;
 public final class THCLink extends JavaPlugin 
 {
 	public ConsoleCommandSender consoleMessage = Bukkit.getConsoleSender();
-	public String townsColor, townsFormat, database, dbusername, dbpassword, host;
+	public String townsColor, townsFormat, nationsColor, nationsFormat, database, dbusername, dbpassword, host, permissionsPlugin, world;
 	public String pluginname = "TownyHerochatLink";
 	private int port;
 	public ArrayList<String> perms = new ArrayList<String>(); //list of permissions from the config
@@ -37,6 +49,9 @@ public final class THCLink extends JavaPlugin
 	public Connection connection = null;
 	public ResultSet result = null;
 	
+    File nicksFile;
+    public FileConfiguration nicks;
+	
 	@Override
 	public void onEnable()
     {
@@ -44,6 +59,15 @@ public final class THCLink extends JavaPlugin
     	this.getConfig();
 		townsColor = getConfig().getString("towns.color");
 		townsFormat = getConfig().getString("towns.format");
+		nationsColor = getConfig().getString("nations.color");
+		nationsFormat = getConfig().getString("nations.format");
+		
+		townsFormat = townsFormat.replaceAll("<", "{");
+		townsFormat = townsFormat.replaceAll(">", "}");
+		nationsFormat = nationsFormat.replaceAll("<", "{");
+		nationsFormat = nationsFormat.replaceAll(">", "}");
+		
+		world = getConfig().getString("createIn.world");
     	getCommand("thcload").setExecutor(new THCCommands(this));
     	getCommand("thcsave").setExecutor(new THCCommands(this));
     	getCommand("thcrefresh").setExecutor(new THCCommands(this));
@@ -55,19 +79,29 @@ public final class THCLink extends JavaPlugin
         database = getConfig().getString("MySQL.database");
         dbusername = getConfig().getString("MySQL.username");
         dbpassword = getConfig().getString("MySQL.password");
+        nicksFile = new File(getDataFolder(), "nicks.yml");
        
         connect(); //connect to database
         tableCheck(); //check to make sure our table exists and if not creates it.
         
 		setupPermissions();
+		permissionsPlugin = permission.getName();
+        try {
+            firstRun();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        nicks = new YamlConfiguration();
+        loadYamls();
 		THCSetup();	
 		if(createT){new THCTownListeners(this);}
 		if(createN){new THCNationListeners(this);}
-		Utilities.sendMessage(consoleMessage, logPrefix + "Enabled!");
+		Utilities.sendLog(logPrefix + "Enabled!");
     }
     @Override
     public void onDisable() 
     {
+    	saveYamls();
         Utilities.sendMessage(consoleMessage, logPrefix + "Closing");
     }
     
@@ -184,24 +218,26 @@ public final class THCLink extends JavaPlugin
     }
     public boolean isNickTaken(String nick)
     {
-    	ResultSet nickCheckResult = query("SELECT nick FROM "+pluginname);
-		try
-		{
-    		while(nickCheckResult.next())
-    		{
-    			String nickCheck = nickCheckResult.getString("nick");
-    			if(nickCheck.equalsIgnoreCase(nick))
-    			{
-    				return true;
-    			}
-    		}
-    	}
-    	catch (SQLException e)
+    	List<String> nicksList = nicks.getStringList("Nicks");
+    	
+    	for(String s: nicksList)
     	{
-    		return false;
+    		if(s.equalsIgnoreCase(nick))
+    		{
+    			return true;
+    		}
     	}
     	
 		return false;
+    }
+    public void addToNicks(String nick, String entity)
+    {
+    	nicks.createSection(entity);
+    	nicks.set(entity, nick);
+    }
+    public void removeFromNicks(String entity)
+    {
+    	nicks.set(entity, null);
     }
     public ResultSet query(String query)
 	{
@@ -258,6 +294,90 @@ public final class THCLink extends JavaPlugin
     	{
     		Utilities.sendMessage(consoleMessage, logPrefix + "&f[&cERROR&f]&eTowns entry is not a boolean value, please set it to true or false and restart");
     	}
+    }
+    public void createChannel(String entityType, String entity, String nick)
+    {
+    	String command = "ch create " + entity + " " + nick;
+    	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
+    	if(entityType.equalsIgnoreCase("town"))
+    	{
+    	command = "ch set " + entity + " color " + townsColor;
+    	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel color
+    	
+    	command = "ch set " + entity + " format " + townsFormat;
+    	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel format
+    	}
+    	else if(entityType.equalsIgnoreCase("nation"))
+    	{
+    		command = "ch set " + entity + " color " + nationsColor;
+        	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel color
+        	
+        	command = "ch set " + entity + " format " + nationsFormat;
+        	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel format
+    	}
+    }
+    public void deleteChannel(String entity)
+    {
+    	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "ch remove " + entity); //delete the channel
+    }
+    public void renameChannel(String entity)
+    {
+    	
+    }
+    public PermissionsPlugin permPluginCheck()
+    {
+    	String permPlugin = permissionsPlugin;
+    	switch(permPlugin)
+    	{
+    	case "zPermissions":
+    		return PermissionsPlugin.ZPERMISSIONS;
+    	case "GroupManager":
+    		return PermissionsPlugin.GROUPMANAGER;
+    	case "bPermissions":
+    		return PermissionsPlugin.BPERMISSIONS;
+    	case "bPermissions2":
+    		return PermissionsPlugin.BPERMISSIONS2;
+    	case "DroxPerms":
+    		return PermissionsPlugin.DROXPERMS;
+    		
+    		
+    	}
+    	return PermissionsPlugin.ZPERMISSIONS;
+    }
+    private void firstRun() throws Exception {
+        
+        if(!nicksFile.exists()){
+            nicksFile.getParentFile().mkdirs();
+            copy(getResource("history.yml"), nicksFile);
+        }
+    }
+    private void copy(InputStream in, File file) {
+        try {
+            OutputStream out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+            }
+            out.close();
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void saveYamls() {
+        try {
+            nicks.save(nicksFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void loadYamls() {
+        try {
+            nicks.load(nicksFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
 }
