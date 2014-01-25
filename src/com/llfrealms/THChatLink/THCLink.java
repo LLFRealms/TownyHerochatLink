@@ -27,6 +27,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 
 
+
 import com.llfrealms.THChatLink.Listeners.THCNationListeners;
 import com.llfrealms.THChatLink.Listeners.THCTownListeners;
 import com.llfrealms.THChatLink.util.PermissionsPlugin;
@@ -96,7 +97,7 @@ public final class THCLink extends JavaPlugin
 		THCSetup();	
 		if(createT){new THCTownListeners(this);}
 		if(createN){new THCNationListeners(this);}
-		Utilities.sendLog(logPrefix + "Enabled!");
+		sendLog("Enabled!");
     }
     @Override
     public void onDisable() 
@@ -222,6 +223,7 @@ public final class THCLink extends JavaPlugin
     	
     	for(String s: nicksList)
     	{
+    		sendLog(s);
     		if(s.equalsIgnoreCase(nick))
     		{
     			return true;
@@ -322,25 +324,41 @@ public final class THCLink extends JavaPlugin
     	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "ch remove " + entity); //delete the channel
     	removeFromNicks(entity);
     }
-    public PermissionsPlugin permPluginCheck()
+    public void createGroup(String entityType, String entity)
     {
-    	String permPlugin = permissionsPlugin;
-    	switch(permPlugin)
+    	switch(permissionsPlugin)
     	{
-    	case "zPermissions":
-    		return PermissionsPlugin.ZPERMISSIONS;
-    	case "GroupManager":
-    		return PermissionsPlugin.GROUPMANAGER;
-    	case "bPermissions":
-    		return PermissionsPlugin.BPERMISSIONS;
-    	case "bPermissions2":
-    		return PermissionsPlugin.BPERMISSIONS2;
-    	case "DroxPerms":
-    		return PermissionsPlugin.DROXPERMS;
-    		
-    		
+    		case "zPermissions":
+    			PermissionsPlugin.ZPERMISSIONS.createGroup(entityType, entity);
+    			break;
+    		default:
+    			Utilities.sendMessage(consoleMessage, "Shit Dude!");
+    			break;
     	}
-    	return PermissionsPlugin.ZPERMISSIONS;
+    }
+    public void deleteGroup(String entityType, String entity)
+    {
+    	switch(permissionsPlugin)
+    	{
+    		case "zPermissions":
+    			PermissionsPlugin.ZPERMISSIONS.deleteGroup(entityType, entity);
+    			break;
+    		default:
+    			Utilities.sendMessage(consoleMessage, "Shit Dude!");
+    			break;
+    	}
+    }
+    public void renameGroup(String entityType, String oldName, String newName)
+    {
+    	switch(permissionsPlugin)
+    	{
+    		case "zPermissions":
+    			PermissionsPlugin.ZPERMISSIONS.renameGroup(entityType, oldName, newName);
+    			break;
+    		default:
+    			Utilities.sendMessage(consoleMessage, "Shit Dude!");
+    			break;
+    	}
     }
     private void firstRun() throws Exception {
         
@@ -376,6 +394,20 @@ public final class THCLink extends JavaPlugin
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public boolean sendLog(String message)
+    {
+    	ConsoleCommandSender p = Bukkit.getConsoleSender();
+        if (message ==null || message.isEmpty()) return true;
+        p.sendMessage(Utilities.colorChat(logPrefix+message));
+        return true;
+    }
+    public  boolean sendError(String message)
+    {
+    	ConsoleCommandSender p = Bukkit.getConsoleSender();
+        if (message ==null || message.isEmpty()) return true;
+        p.sendMessage(Utilities.colorChat(logPrefix+"&c" + message));
+        return true;
     }
     
 }

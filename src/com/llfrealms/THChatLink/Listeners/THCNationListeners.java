@@ -9,7 +9,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
 import com.llfrealms.THChatLink.THCLink;
-import com.llfrealms.THChatLink.util.PermissionsPlugin;
 import com.llfrealms.THChatLink.util.Utilities;
 import com.palmergames.bukkit.towny.event.NationAddTownEvent;
 import com.palmergames.bukkit.towny.event.NationRemoveTownEvent;
@@ -25,7 +24,6 @@ public class THCNationListeners  implements Listener {
 		this.plugin = plugin;
 	}
 	private String entityType = "nation";
-	private PermissionsPlugin permPlug = plugin.permPluginCheck();
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onNationAddTown(NationAddTownEvent event)
@@ -88,13 +86,17 @@ public class THCNationListeners  implements Listener {
 		String nick = nation.substring(0, 4).toUpperCase();
 		int nickSuffix = 0;
 		String nick2 = nick;
+		plugin.sendLog("Checking nicks.");
 		while(plugin.isNickTaken(nick))
 		{
+			plugin.sendLog(nick);
 			nickSuffix++;
 			nick = nick2 + nickSuffix;
 		}
 		
-		permPlug.createGroup(entityType, nation);
+		plugin.createChannel(entityType, nation, nick); //create the channel for the town
+		
+		plugin.createGroup(entityType, nation);
 		
 		List<Resident> capital = creatingTown.getResidents();
 		
@@ -120,7 +122,7 @@ public class THCNationListeners  implements Listener {
 		nation.replaceAll(".", "");
 		
 		plugin.deleteChannel(nation); //delete the channel
-		permPlug.deleteGroup(entityType, nation); //delete the nation
+		plugin.deleteGroup(entityType, nation); //delete the nation
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -154,7 +156,7 @@ public class THCNationListeners  implements Listener {
 		String newName = event.getNation().toString();
 		String oldName = event.getOldName();
 		
-		permPlug.renameGroup(entityType, oldName, newName);
+		plugin.renameGroup(entityType, oldName, newName);
 		
 		String permToAdd;
 		for(int i = 0; i<plugin.perms.size(); i++)

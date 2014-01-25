@@ -2,6 +2,8 @@ package com.llfrealms.THChatLink.util;
 
 import org.bukkit.Bukkit;
 
+import com.llfrealms.THChatLink.THCLink;
+
 public enum PermissionsPlugin 
 { 
 	ZPERMISSIONS("zPermissions"), GROUPMANAGER("GroupManager"), BPERMISSIONS("bPermissions"), BPERMISSIONS2("bPermissions2"), DROXPERMS("DroxPerms"),
@@ -11,6 +13,7 @@ public enum PermissionsPlugin
 	private final String stringValue;
 	private PermissionsPlugin(final String s) { stringValue = s; }
 	public String toString() { return stringValue; }
+	private THCLink plugin;
 	public void createGroup(String entityType, String entity) //used when creating groups
 	{
 		switch (this)
@@ -28,7 +31,7 @@ public enum PermissionsPlugin
 				}
 				else
 				{
-					Utilities.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
+					plugin.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
 				}
 				break;
 			case GROUPMANAGER:
@@ -44,7 +47,7 @@ public enum PermissionsPlugin
 				}
 				else
 				{
-					Utilities.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
+					plugin.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
 				}
 				break;
 			case BPERMISSIONS:
@@ -105,7 +108,7 @@ public enum PermissionsPlugin
 				}
 				else
 				{
-					Utilities.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
+					plugin.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
 				}
 				break;
 			case GROUPMANAGER:
@@ -121,7 +124,7 @@ public enum PermissionsPlugin
 				}
 				else
 				{
-					Utilities.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
+					plugin.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
 				}
 				break;
 			case BPERMISSIONS:
@@ -182,7 +185,7 @@ public enum PermissionsPlugin
 				}
 				else
 				{
-					Utilities.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
+					plugin.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
 				}
 				break;
 			case GROUPMANAGER:
@@ -198,7 +201,7 @@ public enum PermissionsPlugin
 				}
 				else
 				{
-					Utilities.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
+					plugin.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
 				}
 				break;
 			case BPERMISSIONS:

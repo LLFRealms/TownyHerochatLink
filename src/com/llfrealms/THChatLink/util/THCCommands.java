@@ -19,7 +19,6 @@ public class THCCommands  implements CommandExecutor
 	public THCCommands(THCLink plugin) {
 		this.plugin = plugin;
 	}
-	private PermissionsPlugin permPlug = plugin.permPluginCheck();
  
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) 
@@ -41,6 +40,10 @@ public class THCCommands  implements CommandExecutor
 		if(cmd.getName().equalsIgnoreCase("thcrefresh") && sender.hasPermission("thcl.refresh"))
 		{
 			checkChannels();
+			return true;
+		}
+		if(cmd.getName().equalsIgnoreCase("thcgroups"))
+		{
 			return true;
 		}
 		return false;
@@ -163,7 +166,7 @@ public class THCCommands  implements CommandExecutor
 		
 		plugin.createChannel(entityType, town, nick); // create the new channel
 		
-		permPlug.createGroup(entityType, town);
+		plugin.createGroup(entityType, town);
 		
 		String permToAdd;
 		for(int i = 0; i < plugin.perms.size(); i++)
@@ -198,7 +201,7 @@ public class THCCommands  implements CommandExecutor
 		
 		plugin.createChannel("nation", nation, nick);
 		
-		permPlug.createGroup("nation", nation);
+		plugin.createGroup("nation", nation);
 		
 		
 		String permToAdd;
