@@ -2,8 +2,6 @@ package com.llfrealms.THChatLink.util;
 
 import org.bukkit.Bukkit;
 
-import com.llfrealms.THChatLink.THCLink;
-
 public enum PermissionsPlugin 
 { 
 	ZPERMISSIONS("zPermissions"), GROUPMANAGER("GroupManager"), BPERMISSIONS("bPermissions"), BPERMISSIONS2("bPermissions2"), DROXPERMS("DroxPerms"),
@@ -13,7 +11,6 @@ public enum PermissionsPlugin
 	private final String stringValue;
 	private PermissionsPlugin(final String s) { stringValue = s; }
 	public String toString() { return stringValue; }
-	private THCLink plugin;
 	public void createGroup(String entityType, String entity) //used when creating groups
 	{
 		switch (this)
@@ -24,7 +21,7 @@ public enum PermissionsPlugin
 					String command = "perm group t:" + entity + " create";
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
 				}
-				else if(entityType.equalsIgnoreCase("Nation"))
+				else if(entityType.equalsIgnoreCase("nation"))
 				{
 					String command = "perm group n:" + entity + " create";
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the nation
@@ -35,7 +32,20 @@ public enum PermissionsPlugin
 				}
 				break;
 			case GROUPMANAGER:
-				System.out.println("GroupManager");
+				if(entityType.equalsIgnoreCase("town"))
+				{
+					String command = "mangadd t:" + entity;
+					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
+				}
+				else if(entityType.equalsIgnoreCase("nation"))
+				{
+					String command = "mangadd n:" + entity;
+					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the nation
+				}
+				else
+				{
+					Utilities.sendError("Shit dude, I messed up! Please let me know on my devBukkit page!");
+				}
 				break;
 			case BPERMISSIONS:
 				System.out.println("bPermissions");
@@ -88,7 +98,7 @@ public enum PermissionsPlugin
 					String command = "perm group t:" + entity + " purge";
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
 				}
-				else if(entityType.equalsIgnoreCase("Nation"))
+				else if(entityType.equalsIgnoreCase("nation"))
 				{
 					String command = "perm group n:" + entity + " purge";
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the nation
@@ -104,7 +114,7 @@ public enum PermissionsPlugin
 					String command = "mangdel t:" + entity;
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
 				}
-				else if(entityType.equalsIgnoreCase("Nation"))
+				else if(entityType.equalsIgnoreCase("nation"))
 				{
 					String command = "mangdel n:" + entity;
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the nation
@@ -178,14 +188,13 @@ public enum PermissionsPlugin
 			case GROUPMANAGER:
 				if(entityType.equalsIgnoreCase("town"))
 				{
-					
-					String command = "mangdel t:" + oldName;
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the town
+					GROUPMANAGER.deleteGroup("town", oldName);
+					GROUPMANAGER.createGroup("town", newName);
 				}
 				else if(entityType.equalsIgnoreCase("Nation"))
 				{
-					String command = "mangdel n:" + oldName;
-					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //make a group for the nation
+					GROUPMANAGER.deleteGroup("nation", oldName);
+					GROUPMANAGER.createGroup("nation", newName);
 				}
 				else
 				{

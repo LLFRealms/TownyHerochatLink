@@ -53,8 +53,6 @@ public class THCTownListeners implements Listener {
 			nick = nick2 + nickSuffix;
 		}
 		
-		plugin.addToNicks(nick, town); //add the new nickname to the list in the YML file
-		
 		plugin.createChannel(entityType, town, nick); //create the channel for the town
 				
 		permPlug.createGroup(entityType, town); // create the group for the town
@@ -80,8 +78,6 @@ public class THCTownListeners implements Listener {
 		town.replaceAll(".", ""); //get rid of invalid characters for channel creation
 		
 		plugin.deleteChannel(town); //delete the channel
-		
-		plugin.removeFromNicks(town);
 		
 		permPlug.deleteGroup(entityType, town);
 	}
@@ -164,8 +160,9 @@ public class THCTownListeners implements Listener {
 		town.replaceAll(".", "");
 		oldName.replaceAll("_", "");
 		oldName.replaceAll(".", "");
+
+		plugin.deleteChannel(oldName);//delete the old channel
 		
-		plugin.removeFromNicks(oldName);
 		String nick = town.substring(0, 4).toUpperCase();
 		//nickname stuff
 		int nickSuffix = 0;
@@ -176,16 +173,9 @@ public class THCTownListeners implements Listener {
 			nick = nick2 + nickSuffix;
 		}
 		
-		plugin.addToNicks(nick, town); //add the new nickname to the list in the YML file
-		
 		plugin.createChannel(entityType, town, nick); //create the new channel for the town
 		
-		plugin.deleteChannel(oldName);//delete the old channel
-		permPlug.deleteGroup("town", oldName); //delete the old group
-		
-		permPlug.createGroup(entityType, town); // create the new group for the town
-		
-
+		permPlug.renameGroup(entityType, oldName, town);
 		
 		for(int i = 0; i < plugin.perms.size(); i++)
 		{
@@ -197,8 +187,8 @@ public class THCTownListeners implements Listener {
 		{
 			Player player = plugin.getServer().getPlayer(s.toString());
 			
-			plugin.permission.playerAddGroup(player, "t:" + town); // add the player to thr group
-			player.performCommand("ch join " + town); //add residents to nation chat
+			plugin.permission.playerAddGroup(player, "t:" + town); // add the player to the group
+			player.performCommand("ch join " + town); //add residents to town chat
 		}
 		
 	}

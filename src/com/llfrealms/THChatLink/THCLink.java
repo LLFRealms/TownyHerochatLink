@@ -297,6 +297,7 @@ public final class THCLink extends JavaPlugin
     }
     public void createChannel(String entityType, String entity, String nick)
     {
+    	addToNicks(nick, entity);
     	String command = "ch create " + entity + " " + nick;
     	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
     	if(entityType.equalsIgnoreCase("town"))
@@ -319,10 +320,7 @@ public final class THCLink extends JavaPlugin
     public void deleteChannel(String entity)
     {
     	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "ch remove " + entity); //delete the channel
-    }
-    public void renameChannel(String entity)
-    {
-    	
+    	removeFromNicks(entity);
     }
     public PermissionsPlugin permPluginCheck()
     {
