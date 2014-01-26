@@ -1,3 +1,4 @@
 #Channel nicknames are listed below
-#Entity: nick
+Nicks:
+    entity: NICKNAME
 

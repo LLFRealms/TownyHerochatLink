@@ -4,7 +4,6 @@ package com.llfrealms.THChatLink.Listeners;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,33 +28,21 @@ public class THCTownListeners implements Listener {
 	
 	
 	public void townCreation(Town event, String mayor) 
-	{
-		Player player = plugin.getServer().getPlayer(mayor);
-		
+	{		
 		Town createdTown = event;
 		
 		String town = createdTown.toString();
 		
 		town.replaceAll("_", ""); //get rid of invalid characters for channel creation
 		town.replaceAll(".", ""); //get rid of invalid characters for channel creation
-				
-		String group = "t:" + town;
-		
-		//nickname stuff
+
 		String nick = town.substring(0, 4).toUpperCase();
-		int nickSuffix = 0;
-		String nick2 = nick;
-		while(plugin.isNickTaken(nick))
-		{
-			nickSuffix++;
-			nick = nick2 + nickSuffix;
-		}
 		
 		plugin.createChannel(entityType, town, nick); //create the channel for the town
 				
 		plugin.createGroup(entityType, town); // create the group for the town
 		
-		plugin.permission.playerAddGroup(player, group); // add the player to thr group
+		plugin.permission.playerAddGroup(plugin.world, mayor, "t:"+town); // add the player to thr group
 		
 		for(int i = 0; i < plugin.perms.size(); i++)
 		{
@@ -63,7 +50,7 @@ public class THCTownListeners implements Listener {
 			plugin.permission.groupAdd(plugin.world,"t:"+town , permToAdd);//add perm to group
 		}
 		
-		player.performCommand("ch join " + town); //add player to town chat
+		plugin.joinChannel(mayor, town);
 		
 		
 	}
@@ -111,11 +98,8 @@ public class THCTownListeners implements Listener {
 //					
 					String player = resident.toString();
 					
-					Player commandPlayer = plugin.getServer().getPlayer(player);
-					
-					plugin.permission.playerAddGroup(commandPlayer, "t:"+town); //add player to town group
-					
-					commandPlayer.performCommand("ch join " + town); //add residents to town chat
+					plugin.permission.playerAddGroup(plugin.world, player, "t:"+town); //add player to town group
+					plugin.joinChannel(player, town);
 				}
 				else
 				{
@@ -140,9 +124,7 @@ public class THCTownListeners implements Listener {
 		String group = "t:"+town;
 		String removedPlayer = event.getResident().toString(); //string to hold the creators name
 		
-		Player commandPlayer = plugin.getServer().getPlayer(removedPlayer); //Player for making the player leave the channel
-		
-		commandPlayer.performCommand("ch leave " + town); //remove player from town chat
+		plugin.leaveChannel(removedPlayer, town);
 		plugin.permission.playerRemoveGroup(plugin.world, removedPlayer, group); //remove player from the group
 	}
 	
@@ -162,14 +144,6 @@ public class THCTownListeners implements Listener {
 		plugin.deleteChannel(oldName);//delete the old channel
 		
 		String nick = town.substring(0, 4).toUpperCase();
-		//nickname stuff
-		int nickSuffix = 0;
-		String nick2 = nick;
-		while(plugin.isNickTaken(nick))
-		{
-			nickSuffix++;
-			nick = nick2 + nickSuffix;
-		}
 		
 		plugin.createChannel(entityType, town, nick); //create the new channel for the town
 		
@@ -182,11 +156,9 @@ public class THCTownListeners implements Listener {
 		}
 		
 		for(Resident s: players)
-		{
-			Player player = plugin.getServer().getPlayer(s.toString());
-			
-			plugin.permission.playerAddGroup(player, "t:" + town); // add the player to the group
-			player.performCommand("ch join " + town); //add residents to town chat
+		{			
+			plugin.permission.playerAddGroup(plugin.world, s.toString(), "t:"+town); // add the player to the group
+			plugin.joinChannel(s.toString(), town);
 		}
 		
 	}

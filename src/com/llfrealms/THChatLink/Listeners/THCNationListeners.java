@@ -3,7 +3,6 @@ package com.llfrealms.THChatLink.Listeners;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -57,9 +56,8 @@ public class THCNationListeners  implements Listener {
 					
 					for(Resident s: addedTownRes)
 					{
-						Player commandPlayer = plugin.getServer().getPlayer(s.toString());
-						plugin.permission.playerAddGroup(commandPlayer, "n:" + nation);
-						commandPlayer.performCommand("ch join " + nation); //add residents to nation chat
+						plugin.permission.playerAddGroup(plugin.world, s.toString(), "n:"+nation);
+						plugin.joinChannel(s.toString(), nation);
 					}
 				}
 				else
@@ -84,15 +82,6 @@ public class THCNationListeners  implements Listener {
 		nation.replaceAll("_", "");
 		
 		String nick = nation.substring(0, 4).toUpperCase();
-		int nickSuffix = 0;
-		String nick2 = nick;
-		plugin.sendLog("Checking nicks.");
-		while(plugin.isNickTaken(nick))
-		{
-			plugin.sendLog(nick);
-			nickSuffix++;
-			nick = nick2 + nickSuffix;
-		}
 		
 		plugin.createChannel(entityType, nation, nick); //create the channel for the town
 		
@@ -108,9 +97,8 @@ public class THCNationListeners  implements Listener {
 		}
 		for(Resident s: capital)
 		{
-			Player player = plugin.getServer().getPlayer(s.toString());
-			plugin.permission.playerAddGroup(player, "n:"+nation);
-			player.performCommand("ch join " + nation); //add residents to nation chat
+			plugin.permission.playerAddGroup(plugin.world, s.toString(), "n:"+nation);
+			plugin.joinChannel(s.toString(), nation);
 		}
 		
 	}
@@ -142,8 +130,8 @@ public class THCNationListeners  implements Listener {
 			
 			for(Resident s: removedTownRes)
 			{
-				Player player = plugin.getServer().getPlayer(s.toString());
-				player.performCommand("ch leave " + nation); //add residents to nation chat
+				plugin.leaveChannel(s.toString(), nation);
+				
 				plugin.permission.playerRemoveGroup(plugin.world, s.toString(), "n:"+nation);
 			}
 		}
@@ -169,9 +157,8 @@ public class THCNationListeners  implements Listener {
 		{
 			for(Resident r: s.getResidents())
 			{
-				Player player = plugin.getServer().getPlayer(r.toString());
-				plugin.permission.playerAddGroup(player, "n:"+nation); //add the player to the group
-				player.performCommand("ch join " + nation); //add residents to nation chat
+				plugin.permission.playerAddGroup(plugin.world, r.toString(), "n:"+newName); //add the player to the group
+				plugin.joinChannel(r.toString(), newName);
 			}
 			
 		}

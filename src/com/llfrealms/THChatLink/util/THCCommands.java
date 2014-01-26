@@ -2,9 +2,10 @@ package com.llfrealms.THChatLink.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.*;
-import org.bukkit.entity.Player;
 
 import com.llfrealms.THChatLink.THCLink;
 import com.llfrealms.THChatLink.util.Utilities;
@@ -155,16 +156,8 @@ public class THCCommands  implements CommandExecutor
 		town.replaceAll(".", "");
 		
 		String nick = town.substring(0, 4).toUpperCase();
-		int nickSuffix = 0;
-		String nick2 = nick;
-		while(plugin.isNickTaken(nick))
-		{
-			nickSuffix++;
-			nick = nick2 + nickSuffix;
-		}
-		plugin.addToNicks(nick, town); //add the new nickname to the list in the YML file
-		
-		plugin.createChannel(entityType, town, nick); // create the new channel
+
+		createChannel(entityType, town, nick); // create the new channel
 		
 		plugin.createGroup(entityType, town);
 		
@@ -176,13 +169,85 @@ public class THCCommands  implements CommandExecutor
 		}
 		for(Resident s: createdTown.getResidents())
 		{
-	    	Player player = plugin.getServer().getPlayer(s.toString());
-	    	plugin.permission.playerAddGroup(player, "t:"+town);
-			player.performCommand("ch join " + town); //add resident to town chat
+			plugin.permission.playerAddGroup(plugin.world, s.toString(), "t:"+town);
+			plugin.joinChannel(s.toString(), town);
+			
 		}
 		
 		
 	}
+    private void createChannel(String entityType, String entity, String nick)
+    {
+    	int nickSuffix = 0;
+		String nick2 = nick;
+		while(isNickTaken(nick, entity))
+		{
+			nickSuffix++;
+			nick = nick2 + nickSuffix;
+		}
+    	entity.replaceAll("_", "");
+		entity.replaceAll(".", "");
+		
+    	plugin.addToNicks(nick, entity);
+    	plugin.sendLog(entity);
+    	String command = "ch create " + entity + " " + nick;
+    	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //create the channel
+    	if(entityType.equalsIgnoreCase("town"))
+    	{
+	    	command = "ch set " + entity + " color " + plugin.townsColor;
+	    	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel color
+	    	
+	    	command = "ch set " + entity + " format " + plugin.townsFormat;
+	    	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel format
+    	}
+    	else if(entityType.equalsIgnoreCase("nation"))
+    	{
+    		command = "ch set " + entity + " color " + plugin.nationsColor;
+        	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel color
+        	
+        	command = "ch set " + entity + " format " + plugin.nationsFormat;
+        	Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command); //set the channel format
+    	}
+    }
+    private boolean isNickTaken(String nick, String entity)
+    {    	
+    	String check;
+    	List<Town> towns =  TownyUniverse.getDataSource().getTowns();
+    	List<Nation> nations = TownyUniverse.getDataSource().getNations();
+    	for(Town s: towns)
+    	{
+    		Set<String> entities = plugin.nicks.getConfigurationSection("Nicks").getKeys(false);
+    		for(String e: entities)
+    		{
+    			if(!s.toString().equalsIgnoreCase(entity))
+    			{
+	    			check = plugin.nicks.getString("Nicks."+e.toString());
+		    		if(check.equalsIgnoreCase(nick))
+		    		{
+		    			return true;
+		    		}
+    			}
+    		}
+    		
+    		
+    	}
+    	for(Nation s: nations)
+    	{
+    		Set<String> entities = plugin.nicks.getConfigurationSection("Nicks").getKeys(false);
+    		for(String e: entities)
+    		{
+    			if(!s.toString().equalsIgnoreCase(entity))
+    			{
+	    			check = plugin.nicks.getString("Nicks."+e.toString());
+		    		if(check.equalsIgnoreCase(nick))
+		    		{
+		    			return true;
+		    		}
+    			}
+    		}
+    	}
+		return false;
+    }
     public void nationCreation(Nation createdNation)
 	{
 		String nation = createdNation.toString();
@@ -190,16 +255,8 @@ public class THCCommands  implements CommandExecutor
 		nation.replaceAll(".", "");
 		
 		String nick = nation.substring(0, 4).toUpperCase();
-		int nickSuffix = 0;
-		String nick2 = nick;
-		while(plugin.isNickTaken(nick))
-		{
-			nickSuffix++;
-			nick = nick2 + nickSuffix;
-		}
-		plugin.addToNicks(nick, nation);
 		
-		plugin.createChannel("nation", nation, nick);
+		createChannel("nation", nation, nick);
 		
 		plugin.createGroup("nation", nation);
 		
@@ -216,9 +273,9 @@ public class THCCommands  implements CommandExecutor
 		{
 			for(Resident r: s.getResidents())
 			{
-				Player player = plugin.getServer().getPlayer(r.toString());
-				plugin.permission.playerAddGroup(player, "n:"+nation); //add the player to the group
-				player.performCommand("ch join " + nation); //add residents to nation chat
+				plugin.permission.playerAddGroup(plugin.world, r.toString(), "n:"+nation); //add the player to the group
+				plugin.joinChannel(r.toString(), nation);
+			
 			}
 			
 		}

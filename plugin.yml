@@ -3,7 +3,7 @@ author: L337Lobster
 website: http://dev.bukkit.org/bukkit-plugins/townyherochatlink
 main: com.llfrealms.THChatLink.THCLink
 depend: [Towny,Herochat,Vault]
-version: 1.5
+version: 2.0
 
 commands:
     thcsave:
